@@ -1,6 +1,6 @@
 # supletanes_app
 Descripción del Proyecto:
-Este proyecto consta del desarrollo de una aplicación para dispositivos móviles, orientada a la venta de suplementos alimenticios/deportivos. Se irá trabajando durante el resto del semetre, implementando nuevas funcionalidades y pantallas según la planificación y el avance registrado.
+- Este proyecto consta del desarrollo de una aplicación para dispositivos móviles, orientada a la venta de suplementos alimenticios/deportivos. Se irá trabajando durante el resto del semetre, implementando nuevas funcionalidades y pantallas según la planificación y el avance registrado.
 
 Integrantes:
 - Francisco Olate
