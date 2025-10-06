@@ -1,31 +1,78 @@
 package com.example.supletanes.ui.screens
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.example.supletanes.ui.navigation.BottomNavItem
+import com.example.supletanes.ui.screens.cart.CartScreen
+import com.example.supletanes.ui.screens.product.ProductListScreen
+import com.example.supletanes.ui.screens.profile.ProfileScreen
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen() {
-    // Esta será la pantalla principal con el catálogo, perfil, etc.
-    // Por ahora, solo un mensaje de bienvenida.
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Pantalla Principal",
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-}
+    // Controlador de navegación para el contenido principal (Productos, Perfil, Carrito)
+    val mainNavController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun MainScreenPreview() {
-    MainScreen()
+    Scaffold(
+        // Barra de navegación inferior
+        bottomBar = {
+            NavigationBar {
+                // Obtenemos el estado actual de la pila de navegación para saber qué pantalla se muestra
+                val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route
+
+                // Lista de nuestros items de navegación
+                val items = listOf(
+                    BottomNavItem.Products,
+                    BottomNavItem.Profile,
+                    BottomNavItem.Cart
+                )
+
+                items.forEach { item ->
+                    NavigationBarItem(
+                        selected = currentRoute == item.route, // El item está seleccionado si su ruta coincide con la actual
+                        label = { Text(item.title) },
+                        icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
+                        onClick = {
+                            // Navegamos a la ruta del item clickeado
+                            mainNavController.navigate(item.route) {
+                                // Evita acumular un gran stack de pantallas al volver a seleccionar un item
+                                popUpTo(mainNavController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                // Evita crear múltiples copias de la misma pantalla
+                                launchSingleTop = true
+                                // Restaura el estado al volver a una pantalla previamente seleccionada
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
+        // NavHost interno para las pantallas principales
+        NavHost(
+            navController = mainNavController,
+            startDestination = BottomNavItem.Products.route, // La pantalla de inicio será Productos
+            modifier = Modifier.padding(innerPadding) // Aplica el padding del Scaffold
+        ) {
+            composable(BottomNavItem.Products.route) { ProductListScreen() }
+            composable(BottomNavItem.Profile.route) { ProfileScreen() }
+            composable(BottomNavItem.Cart.route) { CartScreen() }
+        }
+    }
 }
