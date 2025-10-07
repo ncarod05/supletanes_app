@@ -86,9 +86,14 @@ fun AuthScreen(
         // 6. El botón ahora llama a la función de validación del ViewModel
         Button(
             onClick = { loginViewModel.validarFormulario() },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary // Fondo Azul Acero
+            )
         ) {
-            Text("Iniciar Sesión / Registrarse")
+            Text("Iniciar Sesión / Registrarse",
+                color = MaterialTheme.colorScheme.onPrimary //BlancoPuro
+                )
         }
         Spacer(modifier = Modifier.height(16.dp))
 

@@ -7,6 +7,8 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -29,7 +31,10 @@ fun MainScreen() {
     Scaffold(
         // Barra de navegación inferior
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                // Color de fondo de la barra de navegación
+                containerColor = MaterialTheme.colorScheme.surface // Usará BlancoPuro
+            ) {
                 // Obtenemos el estado actual de la pila de navegación para saber qué pantalla se muestra
                 val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -58,7 +63,19 @@ fun MainScreen() {
                                 // Restaura el estado al volver a una pantalla previamente seleccionada
                                 restoreState = true
                             }
-                        }
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            // Color del indicador (la "píldora") cuando está seleccionado
+                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            // Color del icono cuando está seleccionado
+                            selectedIconColor = MaterialTheme.colorScheme.primary, // Azul Acero
+                            // Color del texto cuando está seleccionado
+                            selectedTextColor = MaterialTheme.colorScheme.primary, // Azul Acero
+                            // Color del icono cuando NO está seleccionado
+                            unselectedIconColor = MaterialTheme.colorScheme.outline, // Gris Plata
+                            // Color del texto cuando NO está seleccionado
+                            unselectedTextColor = MaterialTheme.colorScheme.outline  // Gris Plata
+                        )
                     )
                 }
             }
