@@ -12,9 +12,9 @@ sealed class BottomNavItem(
     val route: String
 ) {
     object Products : BottomNavItem(
-        title = "Productos",
+        title = "Plan",
         icon = Icons.Default.Home,
-        route = "products_route"
+        route = "plan_route"
     )
     object Profile : BottomNavItem(
         title = "Perfil",

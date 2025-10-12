@@ -13,7 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.supletanes.ui.navigation.BottomNavItem
 import com.example.supletanes.ui.screens.cart.CartScreen
-import com.example.supletanes.ui.screens.product.ProductListScreen
+import com.example.supletanes.ui.screens.plan.PlanScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -68,7 +68,7 @@ fun MainScreen(
             startDestination = BottomNavItem.Products.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Products.route) { ProductListScreen() }
+            composable(BottomNavItem.Products.route) { PlanScreen() }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(onLogoutClicked = onLogoutClicked)
             }
