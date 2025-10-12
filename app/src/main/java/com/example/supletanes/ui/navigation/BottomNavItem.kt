@@ -14,16 +14,16 @@ sealed class BottomNavItem(
     object Products : BottomNavItem(
         title = "Productos",
         icon = Icons.Default.Home,
-        route = "products"
+        route = "products_route"
     )
     object Profile : BottomNavItem(
         title = "Perfil",
         icon = Icons.Default.Person,
-        route = "profile"
+        route = "profile_route"
     )
     object Cart : BottomNavItem(
         title = "Carrito",
         icon = Icons.Default.ShoppingCart,
-        route = "cart"
+        route = "cart_route"
     )
 }

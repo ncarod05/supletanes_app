@@ -14,7 +14,7 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Welcome.route // Empezamos en la pantalla de bienvenida
+        startDestination = Screen.Welcome.route
     ) {
         composable(route = Screen.Welcome.route) {
             WelcomeScreen(
@@ -27,8 +27,6 @@ fun AppNavigation() {
         composable(route = Screen.Auth.route) {
             AuthScreen(
                 onLoginSuccess = {
-                    // Al iniciar sesión, vamos a la pantalla principal y limpiamos la pila de navegación
-                    // para que el usuario no pueda volver atrás a la pantalla de Auth o Welcome.
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
@@ -42,7 +40,13 @@ fun AppNavigation() {
         }
 
         composable(route = Screen.Main.route) {
-            MainScreen()
+            MainScreen(
+                onLogoutClicked = {
+                    navController.navigate(Screen.Welcome.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }
