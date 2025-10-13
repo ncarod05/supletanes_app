@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.supletanes.ui.navigation.BottomNavItem
 import com.example.supletanes.ui.screens.cart.CartScreen
 import com.example.supletanes.ui.screens.plan.PlanScreen
+import com.example.supletanes.ui.screens.products.ProductsScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -38,6 +39,7 @@ fun MainScreen(
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val items = listOf(
+                    BottomNavItem.Plan,
                     BottomNavItem.Products,
                     BottomNavItem.Profile,
                     BottomNavItem.Cart
@@ -71,10 +73,12 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = mainNavController,
-            startDestination = BottomNavItem.Products.route,
+            startDestination = BottomNavItem.Plan.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Products.route) { PlanScreen() }
+            composable(BottomNavItem.Plan.route) { PlanScreen() }
+
+            composable(BottomNavItem.Products.route) { ProductsScreen() }
 
             composable(BottomNavItem.Profile.route) {
                 // Y aquí, pasa todos los parámetros hacia ProfileScreen
