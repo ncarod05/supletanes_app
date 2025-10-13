@@ -19,7 +19,13 @@ import com.example.supletanes.ui.screens.profile.ProfileScreen
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    onLogoutClicked: () -> Unit
+    // --- INICIO DE LA REPARACIÓN ---
+    // La firma de la función AHORA acepta todos los parámetros que le pasas.
+    onLogoutClicked: () -> Unit,
+    onChangeNameClicked: () -> Unit,
+    onChangePasswordClicked: () -> Unit,
+    onPrivacyClicked: () -> Unit
+    // --- FIN DE LA REPARACIÓN ---
 ) {
     val mainNavController = rememberNavController()
 
@@ -69,9 +75,17 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Products.route) { PlanScreen() }
+
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen(onLogoutClicked = onLogoutClicked)
+                // Y aquí, pasa todos los parámetros hacia ProfileScreen
+                ProfileScreen(
+                    onLogoutClicked = onLogoutClicked,
+                    onChangeNameClicked = onChangeNameClicked,
+                    onChangePasswordClicked = onChangePasswordClicked,
+                    onPrivacyClicked = onPrivacyClicked
+                )
             }
+
             composable(BottomNavItem.Cart.route) { CartScreen() }
         }
     }
