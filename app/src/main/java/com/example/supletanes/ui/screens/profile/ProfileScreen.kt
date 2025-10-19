@@ -12,6 +12,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme.colorScheme
@@ -23,11 +25,44 @@ data class UserProfile(
 
 @Composable
 fun ProfileScreen(
-    user: UserProfile = UserProfile(),
+    // ✅ 1. AÑADIMOS EL PARÁMETRO 'isGuest'
+    isGuest: Boolean,
+    // El parámetro 'user' ahora puede ser nulo si es un invitado
+    user: UserProfile? = UserProfile(),
     onLogoutClicked: () -> Unit,
     onChangeNameClicked: () -> Unit = {},
     onChangePasswordClicked: () -> Unit = {},
-    onPrivacyClicked: () -> Unit = {}
+    onPrivacyClicked: () -> Unit = {},
+    // ✅ AÑADIMOS UNA ACCIÓN PARA NAVEGAR AL LOGIN DESDE EL MODO INVITADO
+    onLoginClicked: () -> Unit = {}
+) {
+    // ✅ 2. USAMOS UNA CONDICIÓN PARA MOSTRAR LA UI ADECUADA
+    if (isGuest) {
+        // --- UI PARA EL MODO INVITADO ---
+        GuestProfileScreen(onLoginClicked = onLoginClicked)
+    } else {
+        // --- UI PARA EL USUARIO LOGUEADO (tu código original) ---
+        // Nos aseguramos de que 'user' no sea nulo, aunque en este flujo nunca lo será.
+        user?.let {
+            LoggedInProfileScreen(
+                user = it,
+                onLogoutClicked = onLogoutClicked,
+                onChangeNameClicked = onChangeNameClicked,
+                onChangePasswordClicked = onChangePasswordClicked,
+                onPrivacyClicked = onPrivacyClicked
+            )
+        }
+    }
+}
+
+// ✅ 3. EXTRAEMOS LA UI DEL USUARIO LOGUEADO A SU PROPIO COMPOSABLE
+@Composable
+private fun LoggedInProfileScreen(
+    user: UserProfile,
+    onLogoutClicked: () -> Unit,
+    onChangeNameClicked: () -> Unit,
+    onChangePasswordClicked: () -> Unit,
+    onPrivacyClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -53,7 +88,9 @@ fun ProfileScreen(
         Text(
             text = "Gestión de Cuenta",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         )
 
         ProfileItem(
@@ -72,7 +109,9 @@ fun ProfileScreen(
         Text(
             text = "Opciones",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         )
 
         ProfileItem(
@@ -98,8 +137,50 @@ fun ProfileScreen(
     }
 }
 
+// ✅ 4. CREAMOS UN NUEVO COMPOSABLE PARA LA VISTA DE INVITADO
 @Composable
-fun ProfileItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, onClick: () -> Unit) {
+private fun GuestProfileScreen(onLoginClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = "Modo Invitado",
+            modifier = Modifier.size(80.dp),
+            tint = colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Estás en modo invitado",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Inicia sesión o crea una cuenta para gestionar tu perfil, ver tus planes y más.",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = onLoginClicked,
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Text("Iniciar Sesión / Registrarse")
+        }
+    }
+}
+
+
+// --- (El Composable ProfileItem no necesita cambios) ---
+@Composable
+fun ProfileItem(icon: ImageVector, title: String, onClick: () -> Unit) {
+    // ... tu código sin cambios
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,8 +208,16 @@ fun ProfileItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: St
     }
 }
 
-@Preview(showBackground = true)
+// ✅ 5. ACTUALIZAMOS LOS PREVIEWS PARA PROBAR AMBOS ESTADOS
+@Preview(name = "Logged In Preview", showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(onLogoutClicked = {})
+fun LoggedInProfileScreenPreview() {
+    ProfileScreen(isGuest = false, onLogoutClicked = {})
 }
+
+@Preview(name = "Guest Preview", showBackground = true)
+@Composable
+fun GuestProfileScreenPreview() {
+    ProfileScreen(isGuest = true, onLogoutClicked = {})
+}
+

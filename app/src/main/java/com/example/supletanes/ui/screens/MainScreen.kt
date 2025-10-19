@@ -16,35 +16,33 @@ import com.example.supletanes.ui.screens.cart.CartScreen
 import com.example.supletanes.ui.screens.plan.PlanScreen
 import com.example.supletanes.ui.screens.products.ProductsScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
+// ✅ PASO 4: IMPORTAR EL MODELO UserProfile
+import com.example.supletanes.ui.screens.profile.UserProfile
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    // --- INICIO DE LA REPARACIÓN ---
-    // La firma de la función AHORA acepta todos los parámetros que le pasas.
+    isGuest: Boolean,
+    // ✅ PASO 4: RECIBIR EL userProfile (puede ser nulo)
+    userProfile: UserProfile?,
     onLogoutClicked: () -> Unit,
+    onLoginClicked: () -> Unit,
     onChangeNameClicked: () -> Unit,
     onChangePasswordClicked: () -> Unit,
     onPrivacyClicked: () -> Unit
-    // --- FIN DE LA REPARACIÓN ---
 ) {
     val mainNavController = rememberNavController()
 
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = MaterialTheme.colorScheme.surface
-            ) {
+            // ... (Tu NavigationBar no cambia)
+            NavigationBar {
                 val navBackStackEntry by mainNavController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
-
                 val items = listOf(
-                    BottomNavItem.Plan,
-                    BottomNavItem.Products,
-                    BottomNavItem.Profile,
-                    BottomNavItem.Cart
+                    BottomNavItem.Plan, BottomNavItem.Products,
+                    BottomNavItem.Profile, BottomNavItem.Cart
                 )
-
                 items.forEach { item ->
                     NavigationBarItem(
                         selected = currentRoute == item.route,
@@ -52,20 +50,11 @@ fun MainScreen(
                         icon = { Icon(imageVector = item.icon, contentDescription = item.title) },
                         onClick = {
                             mainNavController.navigate(item.route) {
-                                popUpTo(mainNavController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
+                                popUpTo(mainNavController.graph.findStartDestination().id) { saveState = true }
                                 launchSingleTop = true
                                 restoreState = true
                             }
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                            selectedIconColor = MaterialTheme.colorScheme.primary,
-                            selectedTextColor = MaterialTheme.colorScheme.primary,
-                            unselectedIconColor = MaterialTheme.colorScheme.outline,
-                            unselectedTextColor = MaterialTheme.colorScheme.outline
-                        )
+                        }
                     )
                 }
             }
@@ -77,19 +66,19 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavItem.Plan.route) { PlanScreen() }
-
             composable(BottomNavItem.Products.route) { ProductsScreen() }
-
             composable(BottomNavItem.Profile.route) {
-                // Y aquí, pasa todos los parámetros hacia ProfileScreen
+                // ✅ PASO 4: PASAR EL userProfile REAL A ProfileScreen
                 ProfileScreen(
+                    isGuest = isGuest,
+                    user = userProfile, // <--- Aquí se pasan los datos
+                    onLoginClicked = onLoginClicked,
                     onLogoutClicked = onLogoutClicked,
                     onChangeNameClicked = onChangeNameClicked,
                     onChangePasswordClicked = onChangePasswordClicked,
                     onPrivacyClicked = onPrivacyClicked
                 )
             }
-
             composable(BottomNavItem.Cart.route) { CartScreen() }
         }
     }
