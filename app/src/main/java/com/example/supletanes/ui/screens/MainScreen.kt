@@ -14,12 +14,19 @@ import androidx.navigation.compose.rememberNavController
 import com.example.supletanes.ui.navigation.BottomNavItem
 import com.example.supletanes.ui.screens.cart.CartScreen
 import com.example.supletanes.ui.screens.plan.PlanScreen
+import com.example.supletanes.ui.screens.products.ProductsScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
-    onLogoutClicked: () -> Unit
+    // --- INICIO DE LA REPARACIÓN ---
+    // La firma de la función AHORA acepta todos los parámetros que le pasas.
+    onLogoutClicked: () -> Unit,
+    onChangeNameClicked: () -> Unit,
+    onChangePasswordClicked: () -> Unit,
+    onPrivacyClicked: () -> Unit
+    // --- FIN DE LA REPARACIÓN ---
 ) {
     val mainNavController = rememberNavController()
 
@@ -32,6 +39,7 @@ fun MainScreen(
                 val currentRoute = navBackStackEntry?.destination?.route
 
                 val items = listOf(
+                    BottomNavItem.Plan,
                     BottomNavItem.Products,
                     BottomNavItem.Profile,
                     BottomNavItem.Cart
@@ -65,13 +73,23 @@ fun MainScreen(
     ) { innerPadding ->
         NavHost(
             navController = mainNavController,
-            startDestination = BottomNavItem.Products.route,
+            startDestination = BottomNavItem.Plan.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Products.route) { PlanScreen() }
+            composable(BottomNavItem.Plan.route) { PlanScreen() }
+
+            composable(BottomNavItem.Products.route) { ProductsScreen() }
+
             composable(BottomNavItem.Profile.route) {
-                ProfileScreen(onLogoutClicked = onLogoutClicked)
+                // Y aquí, pasa todos los parámetros hacia ProfileScreen
+                ProfileScreen(
+                    onLogoutClicked = onLogoutClicked,
+                    onChangeNameClicked = onChangeNameClicked,
+                    onChangePasswordClicked = onChangePasswordClicked,
+                    onPrivacyClicked = onPrivacyClicked
+                )
             }
+
             composable(BottomNavItem.Cart.route) { CartScreen() }
         }
     }
