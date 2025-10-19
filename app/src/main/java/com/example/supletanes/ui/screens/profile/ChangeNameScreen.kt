@@ -1,74 +1,92 @@
-package com.example.supletanes.ui.screens.profile
+// Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ChangeNameScreen.kt
+package com.example.supletanes.ui.screens.profile // ✅ Paquete correcto
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.supletanes.ui.screens.AuthViewModel // ✅ Importación correcta del ViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChangeNameScreen(
-    // --- INICIO DE LA REPARACIÓN ---
-    // 1. Añade este parámetro para recibir la acción de navegación.
-    onNavigateBack: () -> Unit,
-    // --- FIN DE LA REPARACIÓN ---
-    changeNameViewModel: ChangeNameViewModel = viewModel()
+    authViewModel: AuthViewModel,
+    onNavigateBack: () -> Unit
 ) {
-    val name = changeNameViewModel.name
-    val nameError = changeNameViewModel.nameError
+    val currentUsername = authViewModel.userState.value?.name ?: ""
+    var newUsername by remember { mutableStateOf(currentUsername) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    // 2. Escucha los eventos del ViewModel para ejecutar la navegación.
-    LaunchedEffect(key1 = true) {
-        changeNameViewModel.uiEvent.collect { event ->
-            when (event) {
-                is ChangeNameViewModel.UiEvent.NavigateBack -> {
-                    onNavigateBack() // Llama a la acción recibida.
-                }
-            }
+    fun validate(): Boolean {
+        if (newUsername.isBlank()) {
+            errorMessage = "El nombre no puede estar vacío."
+            return false
         }
+        errorMessage = null
+        return true
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = "Cambiar Nombre",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
-
-        OutlinedTextField(
-            value = name,
-            onValueChange = { changeNameViewModel.onNameChange(it) },
-            modifier = Modifier.fillMaxWidth(),
-            label = { Text("Nuevo Nombre") },
-            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
-            singleLine = true,
-            isError = nameError != null,
-            supportingText = {
-                if (nameError != null) {
-                    Text(text = nameError)
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Cambiar Nombre") },
+                navigationIcon = {
+                    IconButton(onClick = onNavigateBack) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver atrás"
+                        )
+                    }
                 }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Button(
-            onClick = { changeNameViewModel.onSaveClick() },
-            modifier = Modifier.fillMaxWidth()
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Guardar Cambios")
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = newUsername,
+                onValueChange = { newUsername = it },
+                label = { Text("Nuevo nombre de usuario") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                isError = errorMessage != null
+            )
+
+            if (errorMessage != null) {
+                Text(
+                    text = errorMessage!!,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 4.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Button(
+                onClick = {
+                    if (validate()) {
+                        authViewModel.updateUsername(newUsername)
+                        onNavigateBack()
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Guardar Cambios")
+            }
         }
     }
 }

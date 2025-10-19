@@ -1,52 +1,41 @@
-package com.example.supletanes.ui.navigation
+// Ruta: app/src/main/java/com/example/supletanes/ui/navigation/AppNavigation.kt
+package com.example.supletanes.ui.navigation // ✅ Paquete correcto
 
-// --- Importaciones para Animaciones y Navegación ---
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.IntOffset // Importación necesaria para el tween
-// Componentes principales del sistema de navegación de Jetpack Compose.
+import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-
-// --- Importaciones de las Pantallas de la App ---
-import com.example.supletanes.ui.screens.AuthScreen
-import com.example.supletanes.ui.screens.MainScreen
-import com.example.supletanes.ui.screens.WelcomeScreen
+import androidx.navigation.navArgument
+import com.example.supletanes.ui.screens.* // ✅ Importa AuthViewModel, WelcomeScreen, etc.
 import com.example.supletanes.ui.screens.profile.ChangeNameScreen
 import com.example.supletanes.ui.screens.profile.ChangePasswordScreen
 import com.example.supletanes.ui.screens.profile.PrivacyScreen
 
-/**
- * Composable principal que define el grafo de navegación de toda la aplicación.
- * Gestiona qué pantalla se muestra y cómo se realizan las transiciones entre ellas.
- * Utiliza un NavHost para registrar todas las rutas y sus correspondientes Composables.
- */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
-    // --- Definición de Animaciones Estándar ---
-    // CORRECCIÓN: Se especifica `IntOffset` para que sea compatible con las animaciones de deslizamiento.
     val animationSpec = tween<IntOffset>(durationMillis = 300)
+    val authViewModel: AuthViewModel = viewModel()
+    val userProfile = authViewModel.userState.value
 
     NavHost(
         navController = navController,
         startDestination = Screen.Welcome.route
     ) {
-        // --- Pantalla de Bienvenida (Punto de Entrada) ---
+        // --- Pantalla de Bienvenida ---
         composable(
             route = Screen.Welcome.route,
             exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             WelcomeScreen(
-                onContinueClicked = {
-                    navController.navigate(Screen.Auth.route)
-                }
+                onContinueClicked = { navController.navigate(Screen.Auth.route) }
             )
         }
 
@@ -59,13 +48,14 @@ fun AppNavigation() {
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
         ) {
             AuthScreen(
+                authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.createRoute(isGuest = false)) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 onContinueAsGuest = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.createRoute(isGuest = true)) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
@@ -75,13 +65,23 @@ fun AppNavigation() {
         // --- Pantalla Principal (Contenido de la App) ---
         composable(
             route = Screen.Main.route,
+            arguments = listOf(navArgument("isGuest") { type = NavType.BoolType }),
             enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
             exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
-        ) {
+        ) { backStackEntry ->
+            val isGuest = backStackEntry.arguments?.getBoolean("isGuest") ?: true
             MainScreen(
+                isGuest = isGuest,
+                userProfile = userProfile,
                 onLogoutClicked = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Auth.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
+                    }
+                },
+                onLoginClicked = {
                     navController.navigate(Screen.Auth.route) {
                         popUpTo(Screen.Main.route) { inclusive = true }
                     }
@@ -93,7 +93,6 @@ fun AppNavigation() {
         }
 
         // --- Pantallas Secundarias (Formularios de Perfil) ---
-        // Se reutilizan las mismas animaciones para consistencia.
         composable(
             route = Screen.ChangeName.route,
             enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
@@ -102,6 +101,7 @@ fun AppNavigation() {
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
         ) {
             ChangeNameScreen(
+                authViewModel = authViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
@@ -113,9 +113,7 @@ fun AppNavigation() {
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
         ) {
-            ChangePasswordScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            ChangePasswordScreen(onNavigateBack = { navController.popBackStack() })
         }
 
         composable(
@@ -125,9 +123,7 @@ fun AppNavigation() {
             popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
             popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
         ) {
-            PrivacyScreen(
-                onNavigateBack = { navController.popBackStack() }
-            )
+            PrivacyScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }
