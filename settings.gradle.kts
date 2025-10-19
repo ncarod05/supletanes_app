@@ -1,13 +1,8 @@
 pluginManagement {
     repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
+        google()
         mavenCentral()
+        // AÑADIMOS ESTA LÍNEA - El repositorio principal para plugins de Gradle
         gradlePluginPortal()
     }
 }
@@ -21,4 +16,3 @@ dependencyResolutionManagement {
 
 rootProject.name = "Supletanes"
 include(":app")
- 
