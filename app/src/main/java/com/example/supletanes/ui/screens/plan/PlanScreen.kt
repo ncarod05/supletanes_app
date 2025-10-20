@@ -1,5 +1,11 @@
 package com.example.supletanes.ui.screens.plan
 
+import android.Manifest
+import android.graphics.Bitmap
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +43,6 @@ import com.example.supletanes.ui.screens.plan.components.CalorieTracker
 import com.example.supletanes.ui.screens.plan.components.PlanSection
 import com.example.supletanes.ui.screens.plan.components.ProgressCheckInSection
 import com.example.supletanes.ui.screens.plan.components.WeekTimeline
-import java.util.Calendar
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,6 +51,45 @@ fun PlanScreen() {
     val context = LocalContext.current
     var showCalendarDialog by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState()
+
+    val desayunoImage = remember { mutableStateOf<Bitmap?>(null) }
+    val almuerzoImage = remember { mutableStateOf<Bitmap?>(null) }
+    val cenaImage = remember { mutableStateOf<Bitmap?>(null) }
+    val snacksImage = remember { mutableStateOf<Bitmap?>(null) }
+
+    val desayunoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) desayunoImage.value = bitmap
+    }
+
+    val almuerzoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) almuerzoImage.value = bitmap
+    }
+
+    val cenaLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) cenaImage.value = bitmap
+    }
+
+    val snacksLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) snacksImage.value = bitmap
+    }
+
+    val activeSection = remember { mutableStateOf<String?>(null) }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            if (isGranted) {
+                when (activeSection.value) {
+                    "desayuno" -> desayunoLauncher.launch()
+                    "almuerzo" -> almuerzoLauncher.launch()
+                    "cena" -> cenaLauncher.launch()
+                    "snacks" -> snacksLauncher.launch()
+                }
+            } else {
+                Toast.makeText(context, "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+            }
+        }
+    )
 
     if (showCalendarDialog) {
         DatePickerDialog(
@@ -128,7 +172,10 @@ fun PlanScreen() {
                 title = "Desayuno",
                 sectionCalories = 450,
                 goalCalories = dailyGoalCalories,
-                onAddItemClicked = {}
+                image = desayunoImage.value,
+                onAddItemClicked = {
+                    activeSection.value = "desayuno"
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             )
             Divider(modifier = Modifier.padding(vertical = 16.dp))
         }
@@ -138,7 +185,10 @@ fun PlanScreen() {
                 title = "Almuerzo",
                 sectionCalories = 600,
                 goalCalories = dailyGoalCalories,
-                onAddItemClicked = {}
+                image = almuerzoImage.value,
+                onAddItemClicked = {
+                    activeSection.value = "almuerzo"
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             )
             Divider(modifier = Modifier.padding(vertical = 16.dp))
         }
@@ -148,7 +198,10 @@ fun PlanScreen() {
                 title = "Cena",
                 sectionCalories = 150,
                 goalCalories = dailyGoalCalories,
-                onAddItemClicked = {}
+                image = cenaImage.value,
+                onAddItemClicked = {
+                    activeSection.value = "cena"
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             )
             Divider(modifier = Modifier.padding(vertical = 16.dp))
         }
@@ -158,7 +211,10 @@ fun PlanScreen() {
                 title = "Snacks",
                 sectionCalories = 0,
                 goalCalories = dailyGoalCalories,
-                onAddItemClicked = {}
+                image = snacksImage.value,
+                onAddItemClicked = {
+                    activeSection.value = "snacks"
+                    cameraPermissionLauncher.launch(Manifest.permission.CAMERA) }
             )
             Spacer(modifier = Modifier.height(32.dp))
         }

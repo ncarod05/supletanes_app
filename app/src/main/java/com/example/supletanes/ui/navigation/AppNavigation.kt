@@ -1,7 +1,8 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/navigation/AppNavigation.kt
-package com.example.supletanes.ui.navigation // ✅ Paquete correcto
+package com.example.supletanes.ui.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -13,15 +14,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.supletanes.ui.screens.* // ✅ Importa AuthViewModel, WelcomeScreen, etc.
-import com.example.supletanes.ui.screens.profile.ChangeNameScreen
-import com.example.supletanes.ui.screens.profile.ChangePasswordScreen
-import com.example.supletanes.ui.screens.profile.PrivacyScreen
+import com.example.supletanes.ui.screens.auth.AuthScreen
+import com.example.supletanes.ui.screens.auth.viewmodel.AuthViewModel
+import com.example.supletanes.ui.screens.main.MainScreen
+import com.example.supletanes.ui.screens.profile.screens.ChangeNameScreen
+import com.example.supletanes.ui.screens.profile.screens.ChangePasswordScreen
+import com.example.supletanes.ui.screens.profile.screens.PrivacyScreen
+import com.example.supletanes.ui.screens.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val animationSpec = tween<IntOffset>(durationMillis = 300)
+    val animationSpec = tween<IntOffset>(
+        durationMillis = 400,
+        easing = FastOutSlowInEasing
+    )
     val authViewModel: AuthViewModel = viewModel()
     val userProfile = authViewModel.userState.value
 
@@ -32,6 +39,7 @@ fun AppNavigation() {
         // --- Pantalla de Bienvenida ---
         composable(
             route = Screen.Welcome.route,
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
             exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             WelcomeScreen(

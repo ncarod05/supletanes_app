@@ -1,4 +1,4 @@
-package com.example.supletanes.ui.screens // Asegúrate de que el paquete sea el correcto
+package com.example.supletanes.ui.screens.plan.viewmodel
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

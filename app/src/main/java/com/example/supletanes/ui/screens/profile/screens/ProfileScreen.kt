@@ -1,6 +1,6 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ProfileScreen.kt
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.screens
 
+import android.app.Application
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -19,7 +19,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme.colorScheme
-import com.example.supletanes.util.NotificationHelper
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.supletanes.ui.screens.profile.viewmodel.ProfileViewModel
 
 data class UserProfile(
     val name: String = "Juan Pérez",
@@ -30,8 +33,6 @@ data class UserProfile(
 fun ProfileScreen(
     isGuest: Boolean,
     user: UserProfile?,
-    // ✅ CORRECCIÓN: Renombramos el parámetro para evitar la recursión.
-    // Este lambda contiene la lógica de navegación que viene de AppNavigation.
     onNavigateToAuth: () -> Unit,
     onChangeNameClicked: () -> Unit = {},
     onChangePasswordClicked: () -> Unit = {},
@@ -39,6 +40,13 @@ fun ProfileScreen(
     onLoginClicked: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val profileViewModel: ProfileViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return ProfileViewModel(context.applicationContext as Application) as T
+            }
+        }
+    )
 
     if (isGuest) {
         GuestProfileScreen(onLoginClicked = onLoginClicked)
@@ -48,15 +56,7 @@ fun ProfileScreen(
                 user = it,
                 // Creamos un nuevo lambda para el botón de logout.
                 onLogoutClicked = {
-                    // 1. Muestra la notificación.
-                    NotificationHelper.showSimpleNotification(
-                        context = context,
-                        notificationId = 4,
-                        title = "Has cerrado sesión",
-                        text = "Vuelve pronto."
-                    )
-                    // 2. Llama a la acción de navegación original.
-                    onNavigateToAuth()
+                    profileViewModel.logout(onNavigateToAuth)
                 },
                 onChangeNameClicked = onChangeNameClicked,
                 onChangePasswordClicked = onChangePasswordClicked,
@@ -214,12 +214,10 @@ fun ProfileItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     }
 }
 
-// Para el Preview, debemos pasar el nuevo nombre del parámetro.
 @Preview(name = "Logged In Preview", showBackground = true)
 @Composable
 fun LoggedInProfileScreenPreview() {
-    // ✅ CORRECCIÓN: Se añade el parámetro 'user' que ahora es obligatorio.
-    // Le pasamos un perfil de ejemplo para la vista de usuario logueado.
+    //Le pasamos un perfil de ejemplo para la vista de usuario logueado.
     ProfileScreen(
         isGuest = false,
         user = UserProfile(name = "Usuario de Prueba", email = "preview@email.com"),
@@ -230,8 +228,7 @@ fun LoggedInProfileScreenPreview() {
 @Preview(name = "Guest Preview", showBackground = true)
 @Composable
 fun GuestProfileScreenPreview() {
-    // ✅ CORRECCIÓN: Se añade el parámetro 'user'.
-    // Para la vista de invitado, es correcto y seguro pasarlo como nulo.
+    //Para la vista de invitado, es correcto y seguro pasarlo como nulo.
     ProfileScreen(
         isGuest = true,
         user = null,

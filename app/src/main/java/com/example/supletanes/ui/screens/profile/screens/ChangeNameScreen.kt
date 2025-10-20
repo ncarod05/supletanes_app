@@ -1,5 +1,5 @@
 // Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ChangeNameScreen.kt
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.supletanes.ui.screens.AuthViewModel
-import com.example.supletanes.util.NotificationHelper
+import com.example.supletanes.ui.screens.auth.viewmodel.AuthViewModel
+import com.example.supletanes.utils.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

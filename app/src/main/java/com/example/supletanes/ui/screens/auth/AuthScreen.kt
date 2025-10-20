@@ -1,6 +1,6 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/screens/AuthScreen.kt
-package com.example.supletanes.ui.screens
+package com.example.supletanes.ui.screens.auth
 
+import android.util.Patterns
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -15,7 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.example.supletanes.util.NotificationHelper
+import com.example.supletanes.ui.screens.auth.viewmodel.AuthViewModel
+import com.example.supletanes.utils.NotificationHelper
 
 @Composable
 fun AuthScreen(
@@ -39,7 +40,7 @@ fun AuthScreen(
             errorMessage = "Todos los campos son obligatorios."
             return false
         }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             errorMessage = "El formato del correo electrónico no es válido."
             return false
         }

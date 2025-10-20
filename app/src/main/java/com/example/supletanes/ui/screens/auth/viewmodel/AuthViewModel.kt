@@ -1,13 +1,11 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/screens/AuthViewModel.kt
-package com.example.supletanes.ui.screens // ✅ Paquete correcto
+package com.example.supletanes.ui.screens.auth.viewmodel
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import com.example.supletanes.ui.screens.profile.UserProfile // ✅ Importación correcta del UserProfile
+import com.example.supletanes.ui.screens.profile.screens.UserProfile
 
 class AuthViewModel : ViewModel() {
-
     private val _userState = mutableStateOf<UserProfile?>(null)
     val userState: State<UserProfile?> = _userState
 
