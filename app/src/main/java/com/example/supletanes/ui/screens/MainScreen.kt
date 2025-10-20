@@ -1,34 +1,30 @@
 package com.example.supletanes.ui.screens
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.example.supletanes.notifications.RecordatorioCal
 import com.example.supletanes.ui.navigation.BottomNavItem
 import com.example.supletanes.ui.screens.cart.CartScreen
 import com.example.supletanes.ui.screens.plan.PlanScreen
 import com.example.supletanes.ui.screens.products.ProductsScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
-import java.util.concurrent.TimeUnit
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
@@ -37,37 +33,6 @@ fun MainScreen(
     onChangePasswordClicked: () -> Unit,
     onPrivacyClicked: () -> Unit
 ) {
-    val context = LocalContext.current
-
-    fun scheduleWorker() {
-        val reminderRequest = OneTimeWorkRequestBuilder<RecordatorioCal>()
-            .setInitialDelay(10, TimeUnit.SECONDS)
-            .build()
-        WorkManager.getInstance(context).enqueue(reminderRequest)
-    }
-
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            if (isGranted) {
-                scheduleWorker()
-            }
-        }
-    )
-
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val permissionStatus = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
-            if (permissionStatus == PackageManager.PERMISSION_GRANTED) {
-                scheduleWorker()
-            } else {
-                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
-        } else {
-            scheduleWorker()
-        }
-    }
-
     val mainNavController = rememberNavController()
 
     Scaffold(
@@ -116,7 +81,9 @@ fun MainScreen(
             startDestination = BottomNavItem.Plan.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Plan.route) { PlanScreen() }
+            composable(BottomNavItem.Plan.route) {
+                PlanScreen()
+            }
 
             composable(BottomNavItem.Products.route) { ProductsScreen() }
 

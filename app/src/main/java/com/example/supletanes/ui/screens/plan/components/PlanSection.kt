@@ -21,16 +21,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.supletanes.ui.screens.plan.PlanScreen
 
 @Composable
 fun PlanSection(
     title: String,
     sectionCalories: Int,
-    goalCalories: Int, // Nuevo
+    goalCalories: Int,
     onAddItemClicked: () -> Unit
 ) {
-    // Calcular  porcentaje de cada seccion
     val percentage = if (goalCalories > 0) {
         (sectionCalories.toFloat() / goalCalories.toFloat()) * 100
     } else {
@@ -48,20 +46,17 @@ fun PlanSection(
                     text = title,
                     style = MaterialTheme.typography.titleLarge
                 )
-                // 2. Mostrar Calorías y Porcentaje
                 if (sectionCalories > 0) {
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Contenedor para Calorías y Porcentaje
                     Column(horizontalAlignment = Alignment.Start) {
                         Text(
-                            text = "$sectionCalories kcal", // Muestra el total de calorías
+                            text = "$sectionCalories kcal",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Spacer(modifier = Modifier.height(2.dp))
                         Text(
-                            // Muestra el porcentaje, redondeado a un decimal
                             text = "(${ "%.1f".format(percentage) } % del total)",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary
@@ -70,7 +65,6 @@ fun PlanSection(
                 }
             }
 
-            // Botón "Añadir"
             OutlinedButton(
                 onClick = onAddItemClicked,
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
@@ -85,7 +79,6 @@ fun PlanSection(
             }
         }
 
-        // Aquí irían los ítems del plan una vez implementados.
         Text(
             text = "Aún no hay ítems añadidos.",
             style = MaterialTheme.typography.bodyMedium,
