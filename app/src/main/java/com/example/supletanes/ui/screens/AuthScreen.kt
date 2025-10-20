@@ -1,5 +1,5 @@
 // Ruta: app/src/main/java/com/example/supletanes/ui/screens/AuthScreen.kt
-package com.example.supletanes.ui.screens // ✅ CORRECCIÓN: Nombre del paquete corregido.
+package com.example.supletanes.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -12,16 +12,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.example.supletanes.util.NotificationHelper
 
-// El resto del archivo está correcto y no necesita cambios.
 @Composable
 fun AuthScreen(
     authViewModel: AuthViewModel,
     onLoginSuccess: () -> Unit,
     onContinueAsGuest: () -> Unit
 ) {
+    val context = LocalContext.current
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -67,6 +69,8 @@ fun AuthScreen(
                     Text("Iniciar Sesión", style = MaterialTheme.typography.headlineLarge)
                     Spacer(modifier = Modifier.height(32.dp))
 
+                    // ... (Tus OutlinedTextFields y validaciones)
+
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
@@ -104,11 +108,18 @@ fun AuthScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                     }
 
+
                     Button(
                         onClick = {
                             if (validateFields()) {
                                 isLoading = true
                                 authViewModel.login(username = username, email = email)
+                                NotificationHelper.showSimpleNotification(
+                                    context = context,
+                                    notificationId = 1,
+                                    title = "¡Bienvenido de nuevo, $username!",
+                                    text = "Has iniciado sesión correctamente."
+                                )
                                 onLoginSuccess()
                             }
                         },
@@ -126,7 +137,16 @@ fun AuthScreen(
                     }
 
                     TextButton(
-                        onClick = onContinueAsGuest,
+                        onClick = {
+                            // ✅ NOTIFICACIÓN DE MODO INVITADO
+                            NotificationHelper.showSimpleNotification(
+                                context = context,
+                                notificationId = 3, // ID Único
+                                title = "Modo Invitado",
+                                text = "Estás navegando como invitado."
+                            )
+                            onContinueAsGuest()
+                        },
                         enabled = !isLoading
                     ) {
                         Text("Continuar como invitado")

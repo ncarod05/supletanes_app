@@ -1,5 +1,5 @@
 // Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ChangeNameScreen.kt
-package com.example.supletanes.ui.screens.profile // ✅ Paquete correcto
+package com.example.supletanes.ui.screens.profile
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -10,8 +10,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.supletanes.ui.screens.AuthViewModel // ✅ Importación correcta del ViewModel
+import com.example.supletanes.ui.screens.AuthViewModel
+import com.example.supletanes.util.NotificationHelper
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -19,6 +21,7 @@ fun ChangeNameScreen(
     authViewModel: AuthViewModel,
     onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     val currentUsername = authViewModel.userState.value?.name ?: ""
     var newUsername by remember { mutableStateOf(currentUsername) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -80,6 +83,15 @@ fun ChangeNameScreen(
                 onClick = {
                     if (validate()) {
                         authViewModel.updateUsername(newUsername)
+
+                        // LLAMAR A LA NOTIFICACIÓN DE CAMBIO DE NOMBRE
+                        NotificationHelper.showSimpleNotification(
+                            context = context,
+                            notificationId = 2,
+                            title = "Perfil Actualizado",
+                            text = "Tu nombre ha sido cambiado a '$newUsername'."
+                        )
+
                         onNavigateBack()
                     }
                 },
