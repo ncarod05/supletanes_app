@@ -13,14 +13,14 @@ interface SuplementoDao {
     @Query("SELECT * FROM suplemento ORDER BY id DESC")
     fun getAllSupplements(): Flow<List<Suplemento>> // Room soporta directamente Flow
 
-    //@Query("SELECT * FROM suplemento WHERE id = :id LIMIT 1")
-    //suspend fun findById(id: Long): Suplemento?
+    @Query("SELECT * FROM suplemento WHERE id = :id LIMIT 1")
+    suspend fun findById(id: Long): Suplemento?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSupplement(suplemento: Suplemento)
 
-    //@Update
-    //suspend fun update(suplemento: Suplemento)
+    @Update
+    suspend fun update(suplemento: Suplemento)
 
     @Query("DELETE FROM suplemento WHERE id = :id")
     suspend fun deleteSupplementById(id: Int)
