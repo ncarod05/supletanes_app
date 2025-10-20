@@ -1,46 +1,65 @@
 package com.example.supletanes.ui.screens.profile
 
+import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.supletanes.utils.PrivacyPreferencesManager
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
-class PrivacyViewModel : ViewModel() {
+class PrivacyViewModel(application: Application) : AndroidViewModel(application) {
+    private val context = application.applicationContext
 
-    // --- INICIO DE LA MODIFICACIÓN ---
-
-    // 1. Canal para enviar eventos de UI
-    private val _uiEvent = Channel<UiEvent>()
-    val uiEvent = _uiEvent.receiveAsFlow()
-
-    // --- FIN DE LA MODIFICACIÓN ---
-
-    // Estado para la opción de privacidad
     var receivePromotions by mutableStateOf(true)
         private set
+    var receiveNotifications by mutableStateOf(true)
+        private set
 
-    fun onReceivePromotionsChange(newValue: Boolean) {
-        receivePromotions = newValue
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent = _uiEvent.asSharedFlow()
 
+    private var initialPromotions = true
+    private var initialNotifications = true
+
+    val hasChanges: Boolean
+        get() = receivePromotions != initialPromotions || receiveNotifications != initialNotifications
+
+
+    init {
         viewModelScope.launch {
-            // Lógica para guardar esta preferencia...
-            println("Preferencia de promociones guardada: $newValue")
-
-            // --- INICIO DE LA MODIFICACIÓN ---
-
-            // 2. Enviar el evento para navegar hacia atrás
-            _uiEvent.send(UiEvent.NavigateBack)
-
-            // --- FIN DE LA MODIFICACIÓN ---
+            PrivacyPreferencesManager.getPreferences(context).collect { (promotions, notifications) ->
+                receivePromotions = promotions
+                receiveNotifications = notifications
+                initialPromotions = promotions
+                initialNotifications = notifications
+            }
         }
     }
 
-    // Clase sellada para definir los eventos
+    fun onReceivePromotionsChange(newValue: Boolean) {
+        receivePromotions = newValue
+    }
+
+    fun onReceiveNotificationsChange(value: Boolean) {
+        receiveNotifications = value
+    }
+
+    fun savePrivacyPreferences() {
+        viewModelScope.launch {
+            PrivacyPreferencesManager.savePreferences(context, receivePromotions, receiveNotifications)
+            _uiEvent.emit(UiEvent.ShowSnackbar("Preferencias guardadas correctamente"))
+        }
+    }
+
     sealed class UiEvent {
         object NavigateBack : UiEvent()
+        data class ShowSnackbar(val message: String) : UiEvent()
     }
 }

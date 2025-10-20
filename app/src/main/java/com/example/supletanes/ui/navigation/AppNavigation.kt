@@ -1,7 +1,8 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/navigation/AppNavigation.kt
-package com.example.supletanes.ui.navigation // ✅ Paquete correcto
+package com.example.supletanes.ui.navigation
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
@@ -21,7 +22,10 @@ import com.example.supletanes.ui.screens.profile.PrivacyScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val animationSpec = tween<IntOffset>(durationMillis = 300)
+    val animationSpec = tween<IntOffset>(
+        durationMillis = 400,
+        easing = FastOutSlowInEasing
+    )
     val authViewModel: AuthViewModel = viewModel()
     val userProfile = authViewModel.userState.value
 
@@ -32,6 +36,7 @@ fun AppNavigation() {
         // --- Pantalla de Bienvenida ---
         composable(
             route = Screen.Welcome.route,
+            enterTransition = { fadeIn(animationSpec = tween(300)) },
             exitTransition = { fadeOut(animationSpec = tween(300)) }
         ) {
             WelcomeScreen(
