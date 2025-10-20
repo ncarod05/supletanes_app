@@ -1,4 +1,4 @@
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
@@ -13,6 +13,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.supletanes.ui.screens.profile.viewmodel.ChangePasswordViewModel
 
 @Composable
 fun ChangePasswordScreen(

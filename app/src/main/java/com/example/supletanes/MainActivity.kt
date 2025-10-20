@@ -18,7 +18,7 @@ import androidx.work.WorkManager
 import com.example.supletanes.notifications.RecordatorioCal
 import com.example.supletanes.ui.navigation.AppNavigation
 import com.example.supletanes.ui.theme.SupletanesTheme
-import com.example.supletanes.util.NotificationHelper
+import com.example.supletanes.utils.NotificationHelper
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         permissions.entries.forEach {
-            //Podemo agregar para manejar la respuesta
+            //Podemos agregar para manejar la respuesta
         }
     }
 

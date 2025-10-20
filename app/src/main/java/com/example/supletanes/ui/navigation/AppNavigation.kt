@@ -14,10 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.supletanes.ui.screens.* // ✅ Importa AuthViewModel, WelcomeScreen, etc.
-import com.example.supletanes.ui.screens.profile.ChangeNameScreen
-import com.example.supletanes.ui.screens.profile.ChangePasswordScreen
-import com.example.supletanes.ui.screens.profile.PrivacyScreen
+import com.example.supletanes.ui.screens.auth.AuthScreen
+import com.example.supletanes.ui.screens.auth.viewmodel.AuthViewModel
+import com.example.supletanes.ui.screens.main.MainScreen
+import com.example.supletanes.ui.screens.profile.screens.ChangeNameScreen
+import com.example.supletanes.ui.screens.profile.screens.ChangePasswordScreen
+import com.example.supletanes.ui.screens.profile.screens.PrivacyScreen
+import com.example.supletanes.ui.screens.welcome.WelcomeScreen
 
 @Composable
 fun AppNavigation() {

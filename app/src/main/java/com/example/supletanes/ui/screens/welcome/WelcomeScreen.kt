@@ -1,4 +1,4 @@
-package com.example.supletanes.ui.screens
+package com.example.supletanes.ui.screens.welcome
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

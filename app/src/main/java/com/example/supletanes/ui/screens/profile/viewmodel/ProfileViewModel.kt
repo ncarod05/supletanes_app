@@ -3,7 +3,7 @@ package com.example.supletanes.ui.screens.profile.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.supletanes.util.NotificationHelper
+import com.example.supletanes.utils.NotificationHelper
 import com.example.supletanes.utils.PrivacyPreferencesManager
 import kotlinx.coroutines.launch
 

@@ -1,17 +1,14 @@
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.viewmodel
 
 import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.supletanes.utils.PrivacyPreferencesManager
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class PrivacyViewModel(application: Application) : AndroidViewModel(application) {

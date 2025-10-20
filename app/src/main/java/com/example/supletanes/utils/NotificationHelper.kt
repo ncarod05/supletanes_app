@@ -1,5 +1,4 @@
-// Ruta: app/src/main/java/com/example/supletanes/util/NotificationHelper.kt
-package com.example.supletanes.util
+package com.example.supletanes.utils
 
 import android.annotation.SuppressLint
 import android.app.NotificationChannel
@@ -41,7 +40,6 @@ object NotificationHelper {
         text: String
     ) {
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            // ✅ CAMBIO REALIZADO: Ahora usa tu icono personalizado.
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)

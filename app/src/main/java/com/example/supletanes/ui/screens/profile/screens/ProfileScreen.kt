@@ -1,5 +1,4 @@
-// Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ProfileScreen.kt
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.screens
 
 import android.app.Application
 import androidx.compose.foundation.clickable
@@ -24,8 +23,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.supletanes.ui.screens.profile.viewmodel.ProfileViewModel
-import com.example.supletanes.util.NotificationHelper
-import com.example.supletanes.utils.PrivacyPreferencesManager
 
 data class UserProfile(
     val name: String = "Juan Pérez",
@@ -217,11 +214,9 @@ fun ProfileItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     }
 }
 
-// Para el Preview, debemos pasar el nuevo nombre del parámetro.
 @Preview(name = "Logged In Preview", showBackground = true)
 @Composable
 fun LoggedInProfileScreenPreview() {
-    //Se añade el parámetro 'user' que ahora es obligatorio.
     //Le pasamos un perfil de ejemplo para la vista de usuario logueado.
     ProfileScreen(
         isGuest = false,
@@ -233,7 +228,6 @@ fun LoggedInProfileScreenPreview() {
 @Preview(name = "Guest Preview", showBackground = true)
 @Composable
 fun GuestProfileScreenPreview() {
-    //Se añade el parámetro 'user'.
     //Para la vista de invitado, es correcto y seguro pasarlo como nulo.
     ProfileScreen(
         isGuest = true,

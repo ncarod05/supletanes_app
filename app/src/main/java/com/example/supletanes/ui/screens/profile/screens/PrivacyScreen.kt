@@ -1,6 +1,12 @@
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.screens
 
 import android.app.Application
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -16,12 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.supletanes.ui.screens.profile.viewmodel.PrivacyViewModel
 
 @Composable
 fun PrivacyScreen(
     //1.- Recibe para navegar hacia atras
-    onNavigateBack: () -> Unit,
-    privacyViewModel: PrivacyViewModel = viewModel()
+    onNavigateBack: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -48,9 +54,26 @@ fun PrivacyScreen(
         }
     }
 
+    var visible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        visible = true
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
+        var visible by remember { mutableStateOf(false) }
+
+        LaunchedEffect(Unit) {
+            visible = true
+        }
+
+        AnimatedVisibility(
+            visible = visible,
+            enter = fadeIn(animationSpec = tween(400)) + slideInVertically(initialOffsetY = { it / 2 }),
+            exit = fadeOut(animationSpec = tween(300)) + slideOutVertically(targetOffsetY = { it / 2 })
+        ) {
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -121,6 +144,7 @@ fun PrivacyScreen(
                     Text("Guardar cambios")
                 }
             }
+        }
         }
     }
 }

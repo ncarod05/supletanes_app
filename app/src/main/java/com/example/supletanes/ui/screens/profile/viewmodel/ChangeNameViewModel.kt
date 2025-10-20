@@ -1,4 +1,4 @@
-package com.example.supletanes.ui.screens.profile
+package com.example.supletanes.ui.screens.profile.viewmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

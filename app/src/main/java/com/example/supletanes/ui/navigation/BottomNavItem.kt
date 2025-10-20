@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class BottomNavItem(
@@ -27,10 +26,5 @@ sealed class BottomNavItem(
         title = "Perfil",
         icon = Icons.Default.Person,
         route = "profile_route"
-    )
-    object Cart : BottomNavItem(
-        title = "Carrito",
-        icon = Icons.Default.ShoppingCart,
-        route = "cart_route"
     )
 }
