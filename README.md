@@ -14,3 +14,5 @@ Funcionalidades Implementadas:
 Pasos para ejecutar:
 - Iniciar app
 - Presionar botón de continuar
+- Iniciar sesión o continuar como invitado
+- Acceder a las diferentes opciones y pantallas disponibles
