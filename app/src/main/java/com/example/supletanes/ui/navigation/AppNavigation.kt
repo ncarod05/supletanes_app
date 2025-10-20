@@ -1,14 +1,19 @@
-package com.example.supletanes.ui.navigation
+// Ruta: app/src/main/java/com/example/supletanes/ui/navigation/AppNavigation.kt
+package com.example.supletanes.ui.navigation // ✅ Paquete correcto
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-// Imports de las pantallas principales
-import com.example.supletanes.ui.screens.AuthScreen
-import com.example.supletanes.ui.screens.MainScreen
-import com.example.supletanes.ui.screens.WelcomeScreen
-// Imports de las pantallas secundarias del perfil
+import androidx.navigation.navArgument
+import com.example.supletanes.ui.screens.* // ✅ Importa AuthViewModel, WelcomeScreen, etc.
 import com.example.supletanes.ui.screens.profile.ChangeNameScreen
 import com.example.supletanes.ui.screens.profile.ChangePasswordScreen
 import com.example.supletanes.ui.screens.profile.PrivacyScreen
@@ -16,39 +21,67 @@ import com.example.supletanes.ui.screens.profile.PrivacyScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val animationSpec = tween<IntOffset>(durationMillis = 300)
+    val authViewModel: AuthViewModel = viewModel()
+    val userProfile = authViewModel.userState.value
 
     NavHost(
         navController = navController,
         startDestination = Screen.Welcome.route
     ) {
-        // --- Pantallas de Welcome y Auth (sin cambios) ---
-        composable(route = Screen.Welcome.route) {
+        // --- Pantalla de Bienvenida ---
+        composable(
+            route = Screen.Welcome.route,
+            exitTransition = { fadeOut(animationSpec = tween(300)) }
+        ) {
             WelcomeScreen(
-                onContinueClicked = {
-                    navController.navigate(Screen.Auth.route)
-                }
+                onContinueClicked = { navController.navigate(Screen.Auth.route) }
             )
         }
 
-        composable(route = Screen.Auth.route) {
+        // --- Pantalla de Autenticación (Login/Registro) ---
+        composable(
+            route = Screen.Auth.route,
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
+        ) {
             AuthScreen(
+                authViewModel = authViewModel,
                 onLoginSuccess = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.createRoute(isGuest = false)) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 },
                 onContinueAsGuest = {
-                    navController.navigate(Screen.Main.route) {
+                    navController.navigate(Screen.Main.createRoute(isGuest = true)) {
                         popUpTo(Screen.Welcome.route) { inclusive = true }
                     }
                 }
             )
         }
 
-        // --- Llamada a MainScreen (esto ya está correcto) ---
-        composable(route = Screen.Main.route) {
+        // --- Pantalla Principal (Contenido de la App) ---
+        composable(
+            route = Screen.Main.route,
+            arguments = listOf(navArgument("isGuest") { type = NavType.BoolType }),
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
+        ) { backStackEntry ->
+            val isGuest = backStackEntry.arguments?.getBoolean("isGuest") ?: true
             MainScreen(
+                isGuest = isGuest,
+                userProfile = userProfile,
                 onLogoutClicked = {
+                    authViewModel.logout()
+                    navController.navigate(Screen.Auth.route) {
+                        popUpTo(Screen.Main.route) { inclusive = true }
+                    }
+                },
+                onLoginClicked = {
                     navController.navigate(Screen.Auth.route) {
                         popUpTo(Screen.Main.route) { inclusive = true }
                     }
@@ -59,33 +92,38 @@ fun AppNavigation() {
             )
         }
 
-        // --- INICIO DE LA REPARACIÓN ---
-        // Aquí es donde estaba el error.
-        // Ahora pasamos la acción onNavigateBack a cada pantalla de formulario.
-        composable(route = Screen.ChangeName.route) {
+        // --- Pantallas Secundarias (Formularios de Perfil) ---
+        composable(
+            route = Screen.ChangeName.route,
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
+        ) {
             ChangeNameScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
+                authViewModel = authViewModel,
+                onNavigateBack = { navController.popBackStack() }
             )
         }
 
-        composable(route = Screen.ChangePassword.route) {
-            ChangePasswordScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+        composable(
+            route = Screen.ChangePassword.route,
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
+        ) {
+            ChangePasswordScreen(onNavigateBack = { navController.popBackStack() })
         }
-        // --- FIN DE LA REPARACIÓN ---
 
-        // PrivacyScreen no necesita esta acción por ahora, así que se queda igual.
-        composable(route = Screen.Privacy.route) {
-            PrivacyScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
+        composable(
+            route = Screen.Privacy.route,
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }, animationSpec = animationSpec) },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { -it }, animationSpec = animationSpec) },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it }, animationSpec = animationSpec) },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }, animationSpec = animationSpec) }
+        ) {
+            PrivacyScreen(onNavigateBack = { navController.popBackStack() })
         }
     }
 }

@@ -1,3 +1,4 @@
+// Ruta: app/src/main/java/com/example/supletanes/ui/screens/profile/ProfileScreen.kt
 package com.example.supletanes.ui.screens.profile
 
 import androidx.compose.foundation.clickable
@@ -12,9 +13,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme.colorScheme
+import com.example.supletanes.util.NotificationHelper
 
 data class UserProfile(
     val name: String = "Juan Pérez",
@@ -23,11 +28,51 @@ data class UserProfile(
 
 @Composable
 fun ProfileScreen(
-    user: UserProfile = UserProfile(),
-    onLogoutClicked: () -> Unit,
+    isGuest: Boolean,
+    user: UserProfile?,
+    // ✅ CORRECCIÓN: Renombramos el parámetro para evitar la recursión.
+    // Este lambda contiene la lógica de navegación que viene de AppNavigation.
+    onNavigateToAuth: () -> Unit,
     onChangeNameClicked: () -> Unit = {},
     onChangePasswordClicked: () -> Unit = {},
-    onPrivacyClicked: () -> Unit = {}
+    onPrivacyClicked: () -> Unit = {},
+    onLoginClicked: () -> Unit = {}
+) {
+    val context = LocalContext.current
+
+    if (isGuest) {
+        GuestProfileScreen(onLoginClicked = onLoginClicked)
+    } else {
+        user?.let {
+            LoggedInProfileScreen(
+                user = it,
+                // Creamos un nuevo lambda para el botón de logout.
+                onLogoutClicked = {
+                    // 1. Muestra la notificación.
+                    NotificationHelper.showSimpleNotification(
+                        context = context,
+                        notificationId = 4,
+                        title = "Has cerrado sesión",
+                        text = "Vuelve pronto."
+                    )
+                    // 2. Llama a la acción de navegación original.
+                    onNavigateToAuth()
+                },
+                onChangeNameClicked = onChangeNameClicked,
+                onChangePasswordClicked = onChangePasswordClicked,
+                onPrivacyClicked = onPrivacyClicked
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoggedInProfileScreen(
+    user: UserProfile,
+    onLogoutClicked: () -> Unit,
+    onChangeNameClicked: () -> Unit,
+    onChangePasswordClicked: () -> Unit,
+    onPrivacyClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -53,7 +98,9 @@ fun ProfileScreen(
         Text(
             text = "Gestión de Cuenta",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         )
 
         ProfileItem(
@@ -72,7 +119,9 @@ fun ProfileScreen(
         Text(
             text = "Opciones",
             style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 8.dp)
         )
 
         ProfileItem(
@@ -85,7 +134,7 @@ fun ProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         Button(
-            onClick = onLogoutClicked,
+            onClick = onLogoutClicked, // Este onClick ahora tiene la lógica correcta
             modifier = Modifier.fillMaxWidth(0.8f),
             colors = ButtonDefaults.buttonColors(
                 containerColor = colorScheme.error
@@ -99,7 +148,45 @@ fun ProfileScreen(
 }
 
 @Composable
-fun ProfileItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: String, onClick: () -> Unit) {
+private fun GuestProfileScreen(onLoginClicked: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Person,
+            contentDescription = "Modo Invitado",
+            modifier = Modifier.size(80.dp),
+            tint = colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = "Estás en modo invitado",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Inicia sesión o crea una cuenta para gestionar tu perfil, ver tus planes y más.",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center,
+            color = colorScheme.onSurfaceVariant
+        )
+        Spacer(modifier = Modifier.height(32.dp))
+        Button(
+            onClick = onLoginClicked,
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Text("Iniciar Sesión / Registrarse")
+        }
+    }
+}
+
+@Composable
+fun ProfileItem(icon: ImageVector, title: String, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -127,8 +214,28 @@ fun ProfileItem(icon: androidx.compose.ui.graphics.vector.ImageVector, title: St
     }
 }
 
-@Preview(showBackground = true)
+// Para el Preview, debemos pasar el nuevo nombre del parámetro.
+@Preview(name = "Logged In Preview", showBackground = true)
 @Composable
-fun ProfileScreenPreview() {
-    ProfileScreen(onLogoutClicked = {})
+fun LoggedInProfileScreenPreview() {
+    // ✅ CORRECCIÓN: Se añade el parámetro 'user' que ahora es obligatorio.
+    // Le pasamos un perfil de ejemplo para la vista de usuario logueado.
+    ProfileScreen(
+        isGuest = false,
+        user = UserProfile(name = "Usuario de Prueba", email = "preview@email.com"),
+        onNavigateToAuth = {}
+    )
 }
+
+@Preview(name = "Guest Preview", showBackground = true)
+@Composable
+fun GuestProfileScreenPreview() {
+    // ✅ CORRECCIÓN: Se añade el parámetro 'user'.
+    // Para la vista de invitado, es correcto y seguro pasarlo como nulo.
+    ProfileScreen(
+        isGuest = true,
+        user = null,
+        onNavigateToAuth = {}
+    )
+}
+
