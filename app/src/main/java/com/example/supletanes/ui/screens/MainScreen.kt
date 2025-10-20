@@ -3,7 +3,14 @@ package com.example.supletanes.ui.screens
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,6 +26,7 @@ import com.example.supletanes.ui.screens.products.ProductsScreen
 import com.example.supletanes.ui.screens.profile.ProfileScreen
 import com.example.supletanes.ui.screens.profile.UserProfile
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(
@@ -68,22 +76,26 @@ fun MainScreen(
             startDestination = BottomNavItem.Plan.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItem.Plan.route) { PlanScreen() }
-            composable(BottomNavItem.Products.route) { ProductsScreen() }
+            composable(BottomNavItem.Plan.route) {
+                PlanScreen()
+            }
+            composable(BottomNavItem.Products.route) {
+                ProductsScreen()
+            }
             composable(BottomNavItem.Profile.route) {
-                // ✅ CORRECCIÓN: Se pasa la acción de logout al parámetro 'onNavigateToAuth'
-                // para evitar la llamada recursiva que causaba el error.
                 ProfileScreen(
                     isGuest = isGuest,
                     user = userProfile,
-                    onNavigateToAuth = onLogoutClicked, // <--- CAMBIO CLAVE
+                    onNavigateToAuth = onLogoutClicked,
                     onLoginClicked = onLoginClicked,
                     onChangeNameClicked = onChangeNameClicked,
                     onChangePasswordClicked = onChangePasswordClicked,
                     onPrivacyClicked = onPrivacyClicked
                 )
             }
-            composable(BottomNavItem.Cart.route) { CartScreen() }
+            composable(BottomNavItem.Cart.route) {
+                CartScreen()
+            }
         }
     }
 }

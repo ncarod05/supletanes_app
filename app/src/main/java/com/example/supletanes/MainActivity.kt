@@ -1,4 +1,3 @@
-// Ruta: app/src/main/java/com/example/supletanes/MainActivity.kt
 package com.example.supletanes
 
 import android.Manifest
@@ -14,37 +13,32 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.content.ContextCompat
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.example.supletanes.notifications.RecordatorioCal
 import com.example.supletanes.ui.navigation.AppNavigation
 import com.example.supletanes.ui.theme.SupletanesTheme
 import com.example.supletanes.util.NotificationHelper
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        // Aquí puedes manejar si el permiso fue concedido o no, si es necesario.
-        // Por ahora, solo lo solicitamos.
-    }
-
-    private fun askNotificationPermission() {
-        // Solo es necesario en Android 13 (TIRAMISU) y superior.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED
-            ) {
-                // Si el permiso no está concedido, lo solicitamos.
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
+    private val requestMultiplePermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        permissions.entries.forEach {
+            //Podemo agregar para manejar la respuesta
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Llamar a la solicitud de permiso y crear el canal
-        askNotificationPermission()
+        askPermissions()
         NotificationHelper.createNotificationChannel(this)
+
+        val workRequest = PeriodicWorkRequestBuilder<RecordatorioCal>(120, TimeUnit.SECONDS).build()
+        WorkManager.getInstance(applicationContext).enqueue(workRequest)
 
         enableEdgeToEdge()
         setContent {
@@ -56,6 +50,34 @@ class MainActivity : ComponentActivity() {
                     AppNavigation()
                 }
             }
+        }
+    }
+
+    private fun askPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CALENDAR) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.READ_CALENDAR)
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_CALENDAR) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsToRequest.add(Manifest.permission.WRITE_CALENDAR)
+        }
+
+        if (permissionsToRequest.isNotEmpty()) {
+            requestMultiplePermissionsLauncher.launch(permissionsToRequest.toTypedArray())
         }
     }
 }

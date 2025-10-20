@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -31,6 +32,8 @@ fun ProductsScreen() {
     // Controla si el diálogo para añadir suplementos está visible.
     var showDialog by remember { mutableStateOf(false) }
 
+    var suplementoAEditar by remember { mutableStateOf<Suplemento?>(null) }
+
     // Si `showDialog` es true, muestra el diálogo.
     if (showDialog) {
         AddSupplementDialog(
@@ -38,6 +41,17 @@ fun ProductsScreen() {
             onConfirm = { newSupplement ->
                 viewModel.insert(newSupplement) // Llama al ViewModel para guardar
                 showDialog = false // Cierra el diálogo después de guardar
+            }
+        )
+    }
+
+    if (suplementoAEditar != null) {
+        AddSupplementDialog(
+            suplementoInicial = suplementoAEditar,
+            onDismissRequest = { suplementoAEditar = null },
+            onConfirm = { suplementoEditado ->
+                viewModel.update(suplementoEditado)
+                suplementoAEditar = null
             }
         )
     }
@@ -75,7 +89,11 @@ fun ProductsScreen() {
                 }
             } else {
                 items(suplementos, key = { it.id }) { suplemento ->
-                    SuplementoItem(suplemento = suplemento, onDelete = { viewModel.delete(suplemento.id) })
+                    SuplementoItem(
+                        suplemento = suplemento,
+                        onDelete = { viewModel.delete(suplemento.id) },
+                        onEdit = { suplementoAEditar = suplemento }
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
             }
@@ -84,7 +102,7 @@ fun ProductsScreen() {
 }
 
 @Composable
-fun SuplementoItem(suplemento: Suplemento, onDelete: () -> Unit) {
+fun SuplementoItem(suplemento: Suplemento, onEdit: () -> Unit, onDelete: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
@@ -101,6 +119,9 @@ fun SuplementoItem(suplemento: Suplemento, onDelete: () -> Unit) {
                 Text(text = suplemento.descripcion, style = MaterialTheme.typography.bodyMedium)
                 Text(text = "$${suplemento.precio}", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
                 Text(text = "Stock: ${suplemento.stock}", style = MaterialTheme.typography.bodySmall)
+            }
+            IconButton(onClick = onEdit) {
+                Icon(Icons.Default.Edit, contentDescription = "Editar Suplemento", tint = MaterialTheme.colorScheme.primary)
             }
             IconButton(onClick = onDelete) {
                 Icon(Icons.Default.Delete, contentDescription = "Eliminar Suplemento", tint = MaterialTheme.colorScheme.error)
