@@ -38,7 +38,7 @@ class ChangePasswordViewModel : ViewModel() {
     private fun validate(): Boolean {
         // Limpiamos errores previos para re-validar
         currentPasswordError = if (currentPassword.isBlank()) "La contraseña actual es requerida" else null
-        newPasswordError = if (newPassword.length < 8) "Debe tener al menos 8 caracteres" else null
+        newPasswordError = if (newPassword.length < 6) "Debe tener al menos 6 caracteres" else null
         confirmPasswordError = if (newPassword != confirmPassword) "Las contraseñas no coinciden" else null
 
         // Devuelve true si no hay ningún error
