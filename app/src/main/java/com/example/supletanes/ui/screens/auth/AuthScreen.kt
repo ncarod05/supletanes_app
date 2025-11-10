@@ -1,3 +1,4 @@
+// Ruta: app/src/main/java/com/example/supletanes/ui/screens/auth/AuthScreen.kt
 package com.example.supletanes.ui.screens.auth
 
 import android.util.Patterns
@@ -17,6 +18,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.supletanes.ui.screens.auth.viewmodel.AuthViewModel
 import com.example.supletanes.utils.NotificationHelper
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun AuthScreen(
@@ -25,27 +28,32 @@ fun AuthScreen(
     onContinueAsGuest: () -> Unit
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    // Estados para los errores de validación
+    var emailError by remember { mutableStateOf<String?>(null) }
+    var passwordError by remember { mutableStateOf<String?>(null) }
+
     var isContentVisible by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         isContentVisible = true
     }
 
-    fun validateFields(): Boolean {
-        if (username.isBlank() || email.isBlank() || password.isBlank()) {
-            errorMessage = "Todos los campos son obligatorios."
-            return false
-        }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            errorMessage = "El formato del correo electrónico no es válido."
-            return false
-        }
-        errorMessage = null
-        return true
+    // Función de validación que incluye la contraseña de 6 caracteres
+    fun validateForm(): Boolean {
+        val isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        val isPasswordValid = password.length >= 6
+
+        emailError = if (!isEmailValid) "El correo no es válido" else null
+        passwordError = if (!isPasswordValid) "La contraseña debe tener al menos 6 caracteres" else null
+
+        // Comprueba que todos los campos sean válidos
+        return isEmailValid && isPasswordValid && username.isNotBlank()
     }
 
     Box(
@@ -70,58 +78,61 @@ fun AuthScreen(
                     Text("Iniciar Sesión", style = MaterialTheme.typography.headlineLarge)
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // ... (Tus OutlinedTextFields y validaciones)
-
                     OutlinedTextField(
                         value = username,
                         onValueChange = { username = it },
                         label = { Text("Nombre de Usuario") },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = errorMessage?.contains("campos") == true
+                        modifier = Modifier.fillMaxWidth()
                     )
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = email,
-                        onValueChange = { email = it },
+                        onValueChange = {
+                            email = it
+                            emailError = null // Limpiar error al escribir
+                        },
                         label = { Text("Correo Electrónico") },
                         modifier = Modifier.fillMaxWidth(),
-                        isError = errorMessage?.contains("correo") == true
+                        isError = emailError != null
                     )
+                    emailError?.let {
+                        Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
 
                     OutlinedTextField(
                         value = password,
-                        onValueChange = { password = it },
+                        onValueChange = {
+                            password = it
+                            passwordError = null // Limpiar error al escribir
+                        },
                         label = { Text("Contraseña") },
                         modifier = Modifier.fillMaxWidth(),
                         visualTransformation = PasswordVisualTransformation(),
-                        isError = errorMessage?.contains("campos") == true
+                        isError = passwordError != null
                     )
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    if (errorMessage != null) {
-                        Text(
-                            text = errorMessage!!,
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                    passwordError?.let {
+                        Text(text = it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
                     }
-
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     Button(
                         onClick = {
-                            if (validateFields()) {
+                            if (validateForm()) {
                                 isLoading = true
-                                authViewModel.login(username = username, email = email)
-                                NotificationHelper.showSimpleNotification(
-                                    context = context,
-                                    notificationId = 1,
-                                    title = "¡Bienvenido de nuevo, $username!",
-                                    text = "Has iniciado sesión correctamente."
-                                )
-                                onLoginSuccess()
+                                coroutineScope.launch {
+                                    delay(1500) // Simula la espera de la red
+
+                                    authViewModel.login(username = username, email = email)
+                                    NotificationHelper.showSimpleNotification(
+                                        context = context,
+                                        notificationId = 1,
+                                        title = "¡Bienvenido de nuevo, $username!",
+                                        text = "Has iniciado sesión correctamente."
+                                    )
+                                    onLoginSuccess()
+                                }
                             }
                         },
                         enabled = !isLoading,
@@ -139,10 +150,9 @@ fun AuthScreen(
 
                     TextButton(
                         onClick = {
-                            // ✅ NOTIFICACIÓN DE MODO INVITADO
                             NotificationHelper.showSimpleNotification(
                                 context = context,
-                                notificationId = 3, // ID Único
+                                notificationId = 3,
                                 title = "Modo Invitado",
                                 text = "Estás navegando como invitado."
                             )
